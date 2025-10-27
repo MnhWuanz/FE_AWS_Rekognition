@@ -7,11 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "node deploy.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
     "antd": "^5.27.5",
+    "basic-ftp": "^5.0.5",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
