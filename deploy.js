@@ -1,5 +1,6 @@
 // deploy.js
 import dotenv from 'dotenv';
+import process from 'process';
 dotenv.config(); //Đọc file .env
 import { execSync } from 'child_process';
 import ftp from 'basic-ftp';

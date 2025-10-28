@@ -4,7 +4,7 @@ import Logo from '../../components/UI/Logo';
 import Field from '../../components/UI/Field';
 import Input from '../../components/UI/Input';
 import Button from '../../components/UI/Button';
-import { notification, Space } from 'antd';
+import { notification } from 'antd';
 import './LoginPage.css';
 import { useNavigate } from 'react-router-dom';
 function LoginPage() {
@@ -66,7 +66,11 @@ function LoginPage() {
       {contextHolder}
       <div className="min-h-[520px] grid md:grid-cols-2 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 w-3/4 ">
         <div className="p-8 md:p-12 bg-gray-50 dark:bg-gray-800 flex flex-col">
-          <Logo name="Saigon Technology University" imgSrc="/logo.png" />
+          <Logo
+            name="Saigon Technology University"
+            imgSrc="/logo.png"
+          
+          />
           <div className="mt-8 space-y-3">
             <h3 className="text-gray-900 dark:text-gray-100 font-semibold text-xl">
               Thông báo mới

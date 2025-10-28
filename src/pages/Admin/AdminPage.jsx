@@ -1,61 +1,93 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Logo from '../../components/UI/Logo';
 import {
-  UploadOutlined,
+  CalendarOutlined,
+  PoweroffOutlined,
+  TeamOutlined,
   UserOutlined,
-  VideoCameraOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, theme } from 'antd';
+import { Modal, Layout, Menu, theme, Button } from 'antd';
 const { Header, Content, Footer, Sider } = Layout;
+function getItem(label, key, icon, children) {
+  return {
+    key,
+    icon,
+    children,
+    label,
+  };
+}
+//Nội dung menu
 const items = [
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
-  UserOutlined,
-].map((icon, index) => ({
-  key: String(index + 1),
-  icon: React.createElement(icon),
-  label: `nav ${index + 1}`,
-}));
+  getItem('Hồ Sơ Cá Nhân', 'User', <UserOutlined />),
+  getItem('Quản Lý Sinh Viên', 'StudentManagement', <TeamOutlined />, [
+    getItem('Danh Sách Sinh Viên', 'ListStudents'),
+    getItem('Thêm Sinh Viên', 'addStudent'),
+  ]),
+  getItem('Lịch', 'Calendar', <CalendarOutlined />),
+
+  getItem('Logout', 'Logout', <PoweroffOutlined />),
+];
 const AdminPage = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const showModal = () => {
+    setOpen(true);
+  };
+  const handleOk = () => {
+    navigate('/');
+  };
+  const handleCancel = () => {
+    setOpen(false);
+  };
   return (
-    <Layout>
+    <Layout style={{ minHeight: '100vh' }}>
       <Sider
-        breakpoint="lg"
-        collapsedWidth="0"
-        onBreakpoint={(broken) => {
-          console.log(broken);
-        }}
-        onCollapse={(collapsed, type) => {
-          console.log(collapsed, type);
-        }}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="demo-logo-vertical" />
+        <Logo name="" imgSrc={'./logo.png'} height={'20'} width={'full'} />
         <Menu
           theme="dark"
+          defaultSelectedKeys={['1']}
           mode="inline"
-          defaultSelectedKeys={['4']}
           items={items}
+          onClick={(e) => {
+            if (e.key === 'Logout') {
+              {
+                showModal();
+              }
+            }
+          }}
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }} />
-        <Content style={{ margin: '24px 16px 0' }}>
+        <Header style={{ padding: 0, background: '#001529' }} />
+        <Modal
+          title="Bạn có chắc muốn đăng xuất?"
+          open={open}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        ></Modal>
+        <Content style={{ margin: '0 16px' }}>
           <div
             style={{
               padding: 24,
               minHeight: 360,
-              background: colorBgContainer,
+              background: '#fff',
               borderRadius: borderRadiusLG,
             }}
           >
-            content
+            Bill is a cat.
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          STU ©{new Date().getFullYear()} Created by MnhWua
         </Footer>
       </Layout>
     </Layout>
