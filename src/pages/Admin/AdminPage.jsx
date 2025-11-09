@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Logo from '../../components/UI/Logo';
 import {
   CalendarOutlined,
   PoweroffOutlined,
   TeamOutlined,
+  UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Modal, Layout, Menu, theme, Button } from 'antd';
@@ -24,7 +25,7 @@ const items = [
     getItem('Danh Sách Sinh Viên', 'ListStudents'),
     getItem('Thêm Sinh Viên', 'addStudent'),
   ]),
-  getItem('Lịch', 'Calendar', <CalendarOutlined />),
+  getItem('Đăng ký khuôn mặt', 'addFace', <UserAddOutlined />),
 
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];
@@ -34,6 +35,13 @@ const AdminPage = () => {
     token: { borderRadiusLG },
   } = theme.useToken();
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectKey = useMemo(() => {
+    const p = location.pathname;
+    if (p === '/admin') return null;
+    if (p.startsWith('/admin/addFace')) return 'addFace';
+    return 'admin';
+  }, [location.pathname]);
   const [open, setOpen] = useState(false);
   const showModal = () => {
     setOpen(true);
@@ -51,23 +59,35 @@ const AdminPage = () => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <Logo name="" imgSrc={'./logo.png'} height={'20'} width={'full'} />
+        <Logo name="" imgSrc={'/logo.png'} height={'20'} width={'full'} />
         <Menu
           theme="dark"
-          defaultSelectedKeys={['1']}
           mode="inline"
           items={items}
+          selectedKeys={selectKey ? [selectKey] : []}
           onClick={(e) => {
             if (e.key === 'Logout') {
               {
                 showModal();
               }
+            } else {
+              navigate(`/admin/${e.key}`);
             }
           }}
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: '#001529' }} />
+        <Header style={{ padding: 0, background: '#001529' }}>
+          <h1 style={{ float: 'left', color: 'white', marginLeft: '20px' }}>
+            Xin Chào
+          </h1>
+          <div style={{ float: 'right', marginRight: '20px' }}>
+            <CalendarOutlined style={{ color: 'white' }} />
+            <span style={{ color: 'white', marginLeft: '10px' }}>
+              {new Date().toLocaleDateString()}
+            </span>
+          </div>
+        </Header>
         <Modal
           title="Bạn có chắc muốn đăng xuất?"
           open={open}
@@ -77,13 +97,13 @@ const AdminPage = () => {
         <Content style={{ margin: '0 16px' }}>
           <div
             style={{
-              padding: 24,
-              minHeight: 360,
+              padding: 10,
+              height: '100vh',
               background: '#fff',
               borderRadius: borderRadiusLG,
             }}
           >
-            Bill is a cat.
+            <Outlet />
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>

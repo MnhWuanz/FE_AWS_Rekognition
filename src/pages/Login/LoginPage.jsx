@@ -35,7 +35,7 @@ function LoginPage() {
         'Chào mừng đến với hệ thống!'
       );
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/admin');
       }, 1500);
     } else {
       openNotificationWithIcon(
@@ -66,11 +66,7 @@ function LoginPage() {
       {contextHolder}
       <div className="min-h-[520px] grid md:grid-cols-2 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 w-3/4 ">
         <div className="p-8 md:p-12 bg-gray-50 dark:bg-gray-800 flex flex-col">
-          <Logo
-            name="Saigon Technology University"
-            imgSrc="/logo.png"
-          
-          />
+          <Logo name="Saigon Technology University" imgSrc="/logo.png" />
           <div className="mt-8 space-y-3">
             <h3 className="text-gray-900 dark:text-gray-100 font-semibold text-xl">
               Thông báo mới
