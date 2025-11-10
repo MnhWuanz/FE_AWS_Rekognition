@@ -1,32 +1,27 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Login from '../pages/Login/LoginPage';
-import AdminPage from '../pages/Admin/AdminPage';
-import { AnimatePresence } from 'framer-motion';
-import PageTransition from '../components/Animation/PageTransition';
 
 import UserPage from '../pages/Admin/components/UserPage';
-import QRPage from '../pages/Admin/Pages/QR/QRPage';
+
+import QRPage from '../pages/QR/QRPage';
+import AdminPage from '../pages/Admin/AdminPage';
+import RegisterPage from '../pages/Register/RegisterPage';
+import CheckAuth from '../auth/CheckAuth';
 
 const MainRouter = () => {
   return (
     <>
-      <AnimatePresence mode="wait" initial={false}>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <PageTransition>
-                <Login />
-              </PageTransition>
-            }
-          />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route element={<CheckAuth allowedRoles={['admin']} />}>
           <Route path="/admin" element={<AdminPage />}>
             <Route path="addFace" element={<QRPage />} />
             <Route path="User" element={<UserPage />} />
           </Route>
-        </Routes>
-      </AnimatePresence>
+        </Route>
+        <Route path="/registerFace" element={<RegisterPage />} />
+      </Routes>
     </>
   );
 };

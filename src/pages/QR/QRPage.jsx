@@ -1,17 +1,18 @@
 import React from 'react';
 import { Button, Modal } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
 
 import './css/QRPage.css';
-import {
-  EditOutlined,
-  PlusOutlined,
-  PoweroffOutlined,
-} from '@ant-design/icons';
+import { PoweroffOutlined } from '@ant-design/icons';
 import Content from './components/content';
+
 const QRPage = () => {
   const [isActive, setIsActive] = React.useState(false);
-
+  const [token, setToken] = React.useState(null);
   const handleCreateQR = () => {
+    const token = uuidv4();
+    setToken(token);
+    localStorage.setItem('activeToken', JSON.stringify(token));
     setIsActive((prev) => !prev);
   };
   return (
@@ -32,7 +33,7 @@ const QRPage = () => {
         </div>
       </div>
       <div className="flex justify-center items-center mt-5">
-        <Content isActive={isActive} />
+        <Content isActive={isActive} isToken={token} />
       </div>
     </>
   );

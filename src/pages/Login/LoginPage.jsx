@@ -7,22 +7,17 @@ import Button from '../../components/UI/Button';
 import { notification } from 'antd';
 import './LoginPage.css';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../../utils/auth';
 function LoginPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState({ username: '', password: '' });
   const [rememberLogin, setRememberLogin] = useState(false);
   const [api, contextHolder] = notification.useNotification();
-  const arrUsers = [
-    { username: 'admin', password: 'admin' },
-    { username: 'user', password: 'user123' },
-  ];
 
   //Xử lý đăng nhập
-  const handeLogin = () => {
-    const matchedUser = arrUsers.find(
-      (u) => u.username === user.username && u.password === user.password
-    );
-    if (matchedUser) {
+  const handleLogin = () => {
+    const u = login(user.username, user.password);
+    if (u) {
       if (rememberLogin) {
         localStorage.setItem('rememberLogin', JSON.stringify(user));
         setRememberLogin(true);
@@ -35,7 +30,7 @@ function LoginPage() {
         'Chào mừng đến với hệ thống!'
       );
       setTimeout(() => {
-        navigate('/admin');
+        u.role === 'admin' ? navigate('/admin') : navigate('/home');
       }, 1500);
     } else {
       openNotificationWithIcon(
@@ -44,7 +39,6 @@ function LoginPage() {
         'Vui lòng kiểm tra lại thông tin đăng nhập!'
       );
     }
-    console.log();
   };
   //Hàm hiển thị thông báo
   const openNotificationWithIcon = (type, msg, descrip) => {
@@ -115,7 +109,7 @@ function LoginPage() {
                 Ghi nhớ đăng nhập
               </label>
             </div>
-            <Button type="button" onClick={handeLogin}>
+            <Button type="button" onClick={handleLogin}>
               Đăng nhập
             </Button>
           </form>

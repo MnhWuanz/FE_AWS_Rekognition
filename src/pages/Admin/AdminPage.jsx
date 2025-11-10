@@ -9,6 +9,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Modal, Layout, Menu, theme, Button } from 'antd';
+import { logout } from '../../utils/auth';
 const { Header, Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
@@ -47,6 +48,7 @@ const AdminPage = () => {
     setOpen(true);
   };
   const handleOk = () => {
+    logout();
     navigate('/');
   };
   const handleCancel = () => {
