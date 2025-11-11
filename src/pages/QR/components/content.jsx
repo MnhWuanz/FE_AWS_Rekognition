@@ -1,11 +1,11 @@
 import React from 'react';
 import { Input, QRCode, Space } from 'antd';
-const Content = ({ isActive = false, isToken = null }) => {
+const Content = ({ isActive = false }) => {
   return (
     <div>
       <Space direction="vertical" align="center">
         <QRCode
-          value={`/registerFace?token=${isToken}`}
+          value={`https://stu.mnhwua.id.vn/registerFace`}
           size={500}
           status={isActive ? 'active' : 'expired'}
         />
