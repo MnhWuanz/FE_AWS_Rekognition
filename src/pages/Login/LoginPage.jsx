@@ -41,10 +41,11 @@ function LoginPage() {
     }
   };
   //Hàm hiển thị thông báo
-  const openNotificationWithIcon = (type, msg, descrip) => {
+  const openNotificationWithIcon = (type, msg, descrip, placement) => {
     api[type]({
       message: msg,
       description: descrip,
+      placement: placement,
     });
   };
   useEffect(() => {

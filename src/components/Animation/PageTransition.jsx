@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+
 
 const defaultVariants = {
   initial: { opacity: 0, scale: 0.98 },
