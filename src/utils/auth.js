@@ -7,7 +7,6 @@ export function getUser() {
   const user = localStorage.getItem('user');
   return user ? JSON.parse(user) : null;
 }
-
 export function login(username, password) {
   const matchedUser = arrUsers.find(
     (u) => u.username === username && u.password === password

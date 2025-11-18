@@ -11,7 +11,7 @@ function Logo({
   const widthClass = width ? `w-${width}` : 'w-20';
   return (
     <div className="flex items-center  ">
-      <div style={{ ...style }}>
+      <div style={style ? { ...style } : { width: '100%' }}>
         {imgSrc ? (
           <img
             src={imgSrc}

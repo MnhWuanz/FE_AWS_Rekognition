@@ -83,6 +83,39 @@ const RegisterPage = () => {
       content: desp,
     });
   };
+  //Giảm kích thước ảnh
+  const resizeBase64 = (base64Str, maxWidth = 400, maxHeight = 400) => {
+    return new Promise((resolve) => {
+      let img = new Image();
+      img.src = base64Str;
+
+      img.onload = function () {
+        let canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        resolve(canvas.toDataURL('image/jpeg', 0.8)); // nén 80%
+      };
+    });
+  };
 
   // xử lý ảnh chụp từ camera
   const handleCapture = (base64) => {
@@ -123,51 +156,35 @@ const RegisterPage = () => {
 
     // Lấy file upload
     const file = values.hinhanh[0].originFileObj;
-    const imageBase64 = await fileToBase64(file);
-
+    let imageBase64 = await fileToBase64(file);
+    imageBase64 = await resizeBase64(imageBase64);
     try {
       const res = await fetch(
-        'https://dggnfsz809.execute-api.ap-southeast-1.amazonaws.com/prod/checkFaceImg',
+        'https://kprcrwvl1d.execute-api.ap-southeast-1.amazonaws.com/prod/uploadFace',
         {
           method: 'POST',
-          body: JSON.stringify({ imageBase64 }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ten: values.ten,
+            mssv: values.mssv,
+            lop: values.lop,
+            imageBase64: imageBase64,
+          }),
         }
       );
-      setLoading(false);
       const data = await res.json();
-      if (data.valid === false) {
+      if (data.success === false) {
         error(data.message);
         return;
       }
-      try {
-        const res = await fetch(
-          'https://kprcrwvl1d.execute-api.ap-southeast-1.amazonaws.com/prod/uploadFace',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              ten: values.ten,
-              mssv: values.mssv,
-              lop: values.lop,
-              imageBase64: imageBase64,
-            }),
-          }
-        );
-        const data = await res.json();
-        if (data.success === false) {
-          error(data.message);
-          return;
-        }
-        success('Đã gửi thành công!');
-      } catch (error) {
-        error('Gửi thất bại!');
-        console.log(error);
-      }
+      success('Đã gửi thành công!');
     } catch (error) {
       error('Gửi thất bại!');
-      console.error(error);
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 

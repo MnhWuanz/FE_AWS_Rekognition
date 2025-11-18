@@ -23,7 +23,7 @@ function getItem(label, key, icon, children) {
 const items = [
   getItem('Hồ Sơ Cá Nhân', 'User', <UserOutlined />),
   getItem('Quản Lý Sinh Viên', 'StudentManagement', <TeamOutlined />, [
-    getItem('Danh Sách Sinh Viên', 'ListStudents'),
+    getItem('Danh Sách Khuôn Mặt', 'ListStudentsFaces'),
     getItem('Thêm Sinh Viên', 'addStudent'),
   ]),
   getItem('Đăng ký khuôn mặt', 'addFace', <UserAddOutlined />),
@@ -38,10 +38,10 @@ const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const selectKey = useMemo(() => {
-    const p = location.pathname;
-    if (p === '/admin') return null;
-    if (p.startsWith('/admin/addFace')) return 'addFace';
-    return 'admin';
+    const p = location.pathname.replace('/admin/', '');
+    console.log(p);
+    if (p == '/admin') return 'User';
+    return p;
   }, [location.pathname]);
   const [open, setOpen] = useState(false);
   const showModal = () => {
@@ -57,6 +57,7 @@ const AdminPage = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
+        width={260}
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
@@ -79,7 +80,7 @@ const AdminPage = () => {
         />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: '#001529' }}>
+        <Header style={{ padding: 0, background: '#0C2B4E' }}>
           <h1 style={{ float: 'left', color: 'white', marginLeft: '20px' }}>
             Xin Chào
           </h1>
@@ -99,9 +100,8 @@ const AdminPage = () => {
         <Content style={{ margin: '0 16px' }}>
           <div
             style={{
-              padding: 10,
-              height: '100vh',
-              background: '#fff',
+              padding: 10,  
+              background: '#EFECE3',
               borderRadius: borderRadiusLG,
             }}
           >

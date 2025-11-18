@@ -8,6 +8,7 @@ import QRPage from '../pages/QR/QRPage';
 import AdminPage from '../pages/Admin/AdminPage';
 import RegisterPage from '../pages/Register/RegisterPage';
 import CheckAuth from '../auth/CheckAuth';
+import ManagerFace from '../pages/ManagerFaces/ManagerFace';
 
 const MainRouter = () => {
   return (
@@ -18,6 +19,7 @@ const MainRouter = () => {
           <Route path="/admin" element={<AdminPage />}>
             <Route path="addFace" element={<QRPage />} />
             <Route path="User" element={<UserPage />} />
+            <Route path="ListStudentsFaces" element={<ManagerFace />} />
           </Route>
         </Route>
         <Route path="/registerFace" element={<RegisterPage />} />
