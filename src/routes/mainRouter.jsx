@@ -9,7 +9,7 @@ import AdminPage from '../pages/Admin/AdminPage';
 import RegisterPage from '../pages/Register/RegisterPage';
 import CheckAuth from '../auth/CheckAuth';
 import ManagerFace from '../pages/ManagerFaces/ManagerFace';
-
+import FaceRollCall from '../pages/FaceRollCall/FaceRollCall';
 const MainRouter = () => {
   return (
     <>
@@ -20,6 +20,7 @@ const MainRouter = () => {
             <Route path="addFace" element={<QRPage />} />
             <Route path="User" element={<UserPage />} />
             <Route path="ListStudentsFaces" element={<ManagerFace />} />
+            <Route path="FaceRollCall" element={<FaceRollCall />} />
           </Route>
         </Route>
         <Route path="/registerFace" element={<RegisterPage />} />

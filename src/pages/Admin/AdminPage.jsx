@@ -27,7 +27,7 @@ const items = [
     getItem('Thêm Sinh Viên', 'addStudent'),
   ]),
   getItem('Đăng ký khuôn mặt', 'addFace', <UserAddOutlined />),
-
+  getItem('Điểm Danh Bằng Khuôn Mặt', 'FaceRollCall', <UserAddOutlined />),
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];
 const AdminPage = () => {
@@ -100,7 +100,8 @@ const AdminPage = () => {
         <Content style={{ margin: '0 16px' }}>
           <div
             style={{
-              padding: 10,  
+              padding: 10,
+              minHeight: '100vh',
               background: '#EFECE3',
               borderRadius: borderRadiusLG,
             }}

@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Space, Table } from 'antd';
 import { DeleteOutlined, InfoOutlined } from '@ant-design/icons';
 const ManagerFace = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [dataFace, setDataFace] = useState('');
   const onSelectChange = (newSelectedRowKeys) => {
     console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return `${date.toLocaleTimeString()} ${date.toLocaleDateString('vi-VN')}`;
   };
   const columns = [
     {
@@ -63,13 +68,14 @@ const ManagerFace = () => {
 
     {
       title: 'Họ Tên Sinh Viên',
-      dataIndex: 'name',
+      dataIndex: 'ten',
       width: '30%',
     },
     {
       title: 'Thời gian đăng ký',
-      dataIndex: 'time',
+      dataIndex: 'createdAt',
       with: '20%',
+      render: (text) => formatDate(text),
     },
     {
       title: 'Action',
@@ -89,13 +95,6 @@ const ManagerFace = () => {
       with: '30%',
     },
   ];
-  const data = Array.from({ length: 20 }).map((_, index) => ({
-    key: index + 1,
-    mssv: `MSSV${index + 1}`,
-    lop: `D22_TH0${index % 10}`,
-    name: `Nguyen Van  ${index + 1}`,
-  }));
-
   const rowSelection = {
     selectedRowKeys,
     onChange: onSelectChange,
@@ -133,16 +132,37 @@ const ManagerFace = () => {
       },
     ],
   };
-  const onChange = (pagination, filters, sorter, extra) => {
-    console.log('params', pagination, filters, sorter, extra);
-  };
+
+  useEffect(() => {
+    try {
+      const fetchData = async () => {
+        const res = await fetch(
+          'https://kps9v5scs9.execute-api.ap-southeast-1.amazonaws.com/pord/getFaces',
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        ).then((data) => data.json());
+        const data = await res;
+        const formatData = data.data.map((item) => ({
+          ...item,
+          key: item.mssv,
+        }));
+        setDataFace(formatData);
+      };
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
   return (
     <Table
       width="100%"
       rowSelection={rowSelection}
       columns={columns}
-      dataSource={data}
-      onChange={onChange}
+      dataSource={dataFace}
     />
   );
 };

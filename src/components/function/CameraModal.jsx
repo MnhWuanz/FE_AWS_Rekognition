@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Button } from 'antd';
 import { useRef } from 'react';
 
-const CameraModal = ({ open, onClose, onCapture }) => {
+const CameraModal = ({ open = true, onClose = false, onCapture }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const startCam = async () => {
