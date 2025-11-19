@@ -68,6 +68,54 @@ const RegisterPage = () => {
       label: 'D22_TH09',
       value: 'D22_TH09',
     },
+    {
+      label: 'D22_TH10',
+      value: 'D22_TH10',
+    },
+    {
+      label: 'D22_TH11',
+      value: 'D22_TH11',
+    },
+    {
+      label: 'D22_TH12',
+      value: 'D22_TH12',
+    },
+    {
+      label: 'D23_TH01',
+      value: 'D23_TH01',
+    },
+    {
+      label: 'D23_TH02',
+      value: 'D23_TH02',
+    },
+    {
+      label: 'D23_TH03',
+      value: 'D23_TH03',
+    },
+    {
+      label: 'D23_TH04',
+      value: 'D23_TH04',
+    },
+    {
+      label: 'D23_TH05',
+      value: 'D23_TH05',
+    },
+    {
+      label: 'D23_TH06',
+      value: 'D23_TH06',
+    },
+    {
+      label: 'D23_TH07',
+      value: 'D23_TH07',
+    },
+    {
+      label: 'D23_TH08',
+      value: 'D23_TH08',
+    },
+    {
+      label: 'D23_TH09',
+      value: 'D23_TH09',
+    },
   ];
 
   const success = (desp) => {

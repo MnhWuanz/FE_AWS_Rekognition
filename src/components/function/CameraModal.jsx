@@ -41,7 +41,14 @@ const CameraModal = ({ open = true, onClose = false, onCapture }) => {
       }}
       afterOpenChange={(o) => o && startCam()}
     >
-      <video ref={videoRef} style={{ width: '100%', borderRadius: 10 }} />
+      <video
+        ref={videoRef}
+        style={{
+          width: '100%',
+          borderRadius: 10,
+          transform: 'scaleX(-1)', // Lật video preview
+        }}
+      />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
 
       <div style={{ textAlign: 'center', marginTop: 15 }}>

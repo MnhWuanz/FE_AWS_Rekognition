@@ -1,1 +1,16 @@
 @import 'tailwindcss';
+@media (max-width: 480px) {
+  .ant-table {
+    font-size: 13px !important;
+  }
+
+  .ant-table-cell {
+    padding: 6px !important;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}

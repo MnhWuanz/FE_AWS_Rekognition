@@ -34,7 +34,7 @@ const QRPage = () => {
   };
   return (
     <>
-      <div className="bg-sky-500/50 p-3 flex justify-between items-center rounded-lg">
+      <div className="bg-sky-500/50 p-3 flex justify-between items-center rounded-lg flex-wrap">
         <p className="subpixel-antialiased  font-semibold text-white text-lg ">
           Tạo mã QR
         </p>
@@ -49,7 +49,7 @@ const QRPage = () => {
           </Button>
         </div>
       </div>
-      <div className="flex justify-center items-center mt-5">
+      <div className="flex justify-center items-center mt-5 flex-col">
         <Content isActive={isActive} />
       </div>
     </>

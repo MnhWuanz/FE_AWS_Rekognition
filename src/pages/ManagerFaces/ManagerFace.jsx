@@ -81,12 +81,12 @@ const ManagerFace = () => {
       title: 'Action',
       key: 'action',
       render: () => (
-        <Space size="middle">
-          <Button type="default">
+        <Space direction="vertical" className="action-buttons">
+          <Button type="default" block>
             <InfoOutlined />
             Thông Tin
           </Button>
-          <Button type="primary" danger>
+          <Button type="primary" danger block>
             <DeleteOutlined />
             Xoá
           </Button>
@@ -159,6 +159,8 @@ const ManagerFace = () => {
   }, []);
   return (
     <Table
+      scroll={{ x: 600 }}
+      size="small"
       width="100%"
       rowSelection={rowSelection}
       columns={columns}

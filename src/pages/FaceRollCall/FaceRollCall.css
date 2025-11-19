@@ -1,1 +1,38 @@
 @import 'tailwindcss';
+.face-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.face-video {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1000px;
+  border-radius: 12px;
+  background: black;
+}
+
+.face-button {
+  margin-top: 20px;
+  width: 90%;
+  max-width: 280px;
+  height: 60px;
+  font-size: 20px;
+  border-radius: 12px !important;
+}
+
+@media (max-width: 480px) {
+  .face-video {
+    max-height: 380px;
+  }
+
+  .face-button {
+    height: 55px;
+    font-size: 18px;
+  }
+}
