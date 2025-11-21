@@ -22,9 +22,9 @@ function getItem(label, key, icon, children) {
 //Nội dung menu
 const items = [
   getItem('Hồ Sơ Cá Nhân', 'User', <UserOutlined />),
-  getItem('Quản Lý Sinh Viên', 'StudentManagement', <TeamOutlined />, [
+  getItem('Quản Lý ', 'StudentManagement', <TeamOutlined />, [
     getItem('Danh Sách Khuôn Mặt', 'ListStudentsFaces'),
-    getItem('Thêm Sinh Viên', 'addStudent'),
+    getItem('Thêm User', 'addUser'),
   ]),
   getItem('Đăng ký khuôn mặt', 'addFace', <UserAddOutlined />),
   getItem('Điểm Danh Bằng Khuôn Mặt', 'FaceRollCall', <UserAddOutlined />),
@@ -39,7 +39,6 @@ const AdminPage = () => {
   const location = useLocation();
   const selectKey = useMemo(() => {
     const p = location.pathname.replace('/admin/', '');
-    console.log(p);
     if (p == '/admin') return 'User';
     return p;
   }, [location.pathname]);

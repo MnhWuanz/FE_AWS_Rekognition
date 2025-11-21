@@ -10,6 +10,7 @@ import RegisterPage from '../pages/Register/RegisterPage';
 import CheckAuth from '../auth/CheckAuth';
 import ManagerFace from '../pages/ManagerFaces/ManagerFace';
 import FaceRollCall from '../pages/FaceRollCall/FaceRollCall';
+import AddUser from '../pages/addUser/addUser';
 const MainRouter = () => {
   return (
     <>
@@ -21,6 +22,7 @@ const MainRouter = () => {
             <Route path="User" element={<UserPage />} />
             <Route path="ListStudentsFaces" element={<ManagerFace />} />
             <Route path="FaceRollCall" element={<FaceRollCall />} />
+            <Route path="addUser" element={<AddUser />} />
           </Route>
         </Route>
         <Route path="/registerFace" element={<RegisterPage />} />

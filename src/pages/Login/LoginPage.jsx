@@ -10,13 +10,13 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../../utils/auth';
 function LoginPage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState({ username: '', password: '' });
+  const [user, setUser] = useState({ email: '', password: '' });
   const [rememberLogin, setRememberLogin] = useState(false);
   const [api, contextHolder] = notification.useNotification();
 
   //Xử lý đăng nhập
-  const handleLogin = () => {
-    const u = login(user.username, user.password);
+  const handleLogin = async () => {
+    const u = await login(user.email, user.password);
     if (u) {
       if (rememberLogin) {
         localStorage.setItem('rememberLogin', JSON.stringify(user));
@@ -81,11 +81,11 @@ function LoginPage() {
             Đăng nhập
           </h3>
           <form className="mt-6 space-y-4 max-w-md">
-            <Field label="Mã số sinh viên" required>
+            <Field label="Email" required>
               <Input
-                placeholder="DH••••••••"
+                placeholder="••••••••"
                 value={user.username}
-                onChange={(e) => setUser({ ...user, username: e.target.value })}
+                onChange={(e) => setUser({ ...user, email: e.target.value })}
               />
             </Field>
             <Field label="Mật khẩu" required>

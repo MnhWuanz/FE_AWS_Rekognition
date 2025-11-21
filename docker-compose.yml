@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  fe:
+    build: .
+    container_name: fe_aws_rekognition
+    ports:
+      - '80:80'

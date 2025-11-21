@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Space, Table } from 'antd';
+import { Button, Image, Modal, Space, Table } from 'antd';
 import { DeleteOutlined, InfoOutlined } from '@ant-design/icons';
 const ManagerFace = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [dataFace, setDataFace] = useState('');
+  const [openmodal, setOpenmodal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const onSelectChange = (newSelectedRowKeys) => {
     console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
@@ -80,9 +84,9 @@ const ManagerFace = () => {
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space direction="vertical" className="action-buttons">
-          <Button type="default" block>
+          <Button type="default" block onClick={() => handleView(record)}>
             <InfoOutlined />
             Thông Tin
           </Button>
@@ -132,10 +136,15 @@ const ManagerFace = () => {
       },
     ],
   };
+  const handleView = (record) => {
+    setSelectedStudent(record);
+    setOpenmodal(true);
+  };
 
   useEffect(() => {
     try {
       const fetchData = async () => {
+        setLoading(true);
         const res = await fetch(
           'https://kps9v5scs9.execute-api.ap-southeast-1.amazonaws.com/pord/getFaces',
           {
@@ -146,6 +155,7 @@ const ManagerFace = () => {
           }
         ).then((data) => data.json());
         const data = await res;
+        console.log(data);
         const formatData = data.data.map((item) => ({
           ...item,
           key: item.mssv,
@@ -155,17 +165,55 @@ const ManagerFace = () => {
       fetchData();
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }, []);
   return (
-    <Table
-      scroll={{ x: 600 }}
-      size="small"
-      width="100%"
-      rowSelection={rowSelection}
-      columns={columns}
-      dataSource={dataFace}
-    />
+    <>
+      <Table
+        scroll={{ x: 600 }}
+        size="small"
+        width="100%"
+        rowSelection={rowSelection}
+        columns={columns}
+        dataSource={dataFace}
+        loading={loading ? <Loading tip="Đang tải" /> : false}
+      />
+      <Modal
+        open={openmodal}
+        title={`Thông tin sinh viên`}
+        footer={null}
+        onCancel={() => setOpenmodal(false)}
+      >
+        {selectedStudent && (
+          <>
+            <p>
+              <b>MSSV:</b> {selectedStudent.mssv}
+            </p>
+            <p>
+              <b>Họ Tên:</b> {selectedStudent.ten}
+            </p>
+            <p>
+              <b>Lớp:</b> {selectedStudent.lop}
+            </p>
+            <p>
+              <b>Thời gian đăng ký:</b> {formatDate(selectedStudent.createdAt)}
+            </p>
+
+            <p>
+              <b>Ảnh đăng ký:</b>
+            </p>
+            <Image
+              width={300}
+              src={selectedStudent.imageUrl}
+              alt="Student Face"
+              style={{ borderRadius: 8 }}
+            />
+          </>
+        )}
+      </Modal>
+    </>
   );
 };
 
