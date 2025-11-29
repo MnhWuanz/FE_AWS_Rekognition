@@ -1,1 +1,51 @@
 @import 'tailwindcss';
+
+/* Custom styling for Register Page */
+.ant-form-item-label > label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ant-input {
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.ant-select-selector {
+  border-radius: 6px !important;
+  padding: 4px 12px !important;
+  height: 40px !important;
+}
+
+.ant-btn-primary {
+  border-radius: 6px;
+  font-weight: 600;
+  height: 44px;
+}
+
+/* Upload styles */
+.ant-upload-list-picture-card-container {
+  width: 104px;
+  height: 104px;
+}
+
+.ant-upload-select-picture-card {
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.ant-upload-select-picture-card:hover {
+  border-color: #1677ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ant-form-item-label > label {
+    font-size: 13px;
+  }
+
+  .ant-input,
+  .ant-select-selector {
+    font-size: 14px;
+  }
+}

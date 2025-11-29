@@ -7,6 +7,8 @@ import { fileToBase64 } from 'file64';
 import CameraModal from '../../components/function/CameraModal';
 import { get_token } from '../../api/tokenAPI';
 import './css/RegisterPage.css';
+import { checkMSSV, checkSV } from './utils/checkmssv';
+import studentApi from '../../api/apiUser/StudentAPI';
 
 const RegisterPage = () => {
   const [form] = useForm();
@@ -125,7 +127,7 @@ const RegisterPage = () => {
     });
   };
 
-  const error = (desp) => {
+  const errorr = (desp) => {
     messageApi.open({
       type: 'error',
       content: desp,
@@ -201,7 +203,11 @@ const RegisterPage = () => {
 
   const handleSubmit = async (values) => {
     setLoading(true);
-
+    if (await checkMSSV(values.mssv)) {
+      errorr('Mã sinh viên đã đăng ký!');
+      setLoading(false);
+      return;
+    }
     // Lấy file upload
     const file = values.hinhanh[0].originFileObj;
     let imageBase64 = await fileToBase64(file);
@@ -218,24 +224,48 @@ const RegisterPage = () => {
             ten: values.ten,
             mssv: values.mssv,
             lop: values.lop,
+            email: values.email,
             imageBase64: imageBase64,
           }),
         }
       );
       const data = await res.json();
       if (data.success === false) {
-        error(data.message);
+        errorr(data.message);
         return;
       }
-      success('Đã gửi thành công!');
+      try {
+        const sv = await checkSV(values.mssv);
+        console.log(values.mssv);
+        if (sv !== 0) {
+          await studentApi.updateUser({
+            id: sv,
+            code: values.mssv,
+            name: values.ten,
+            email: values.email,
+            faceId: data.imageUrl,
+          });
+        } else {
+          await studentApi.createUser({
+            code: values.mssv,
+            name: values.ten,
+            email: values.email,
+            faceId: data.imageUrl,
+          });
+        }
+        success('Đã gửi thành công!');
+        form.resetFields();
+      } catch (error) {
+        errorr('Gửi thất bại!');
+        console.log(error);
+      }
     } catch (error) {
-      error('Gửi thất bại!');
+      errorr('Gửi thất bại');
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
-
   if (!isActive) {
     return (
       <>
@@ -268,29 +298,65 @@ const RegisterPage = () => {
           />
         </div>
 
-        <div className="bg-cyan-100 h-screen flex justify-center">
-          <div className="bg-white  w-100 mt-6 rounded-md h-fit text-center  ">
-            <h1
-              className="bg-sky-600 p-3 text-2xl text-white font-bold
-"
-            >
+        <div className="bg-cyan-100 min-h-screen flex justify-center py-8">
+          <div className="bg-white w-full max-w-2xl mx-4 rounded-lg shadow-lg h-fit">
+            <h1 className="bg-sky-600 p-4 text-2xl text-white font-bold rounded-t-lg text-center">
               Đăng ký khuôn mặt
             </h1>
             <div className="p-6">
               <Form layout="vertical" form={form} onFinish={handleSubmit}>
                 <Form.Item
-                  label="Nhập họ tên"
+                  label="Nhập Mã Số Sinh Viên"
+                  name="mssv"
+                  rules={[
+                    { required: true, message: 'Nhập mã số sinh viên' },
+                    {
+                      pattern: /^DH[0-9]{8}$/,
+                      message:
+                        'Mã sinh viên phải bắt đầu bằng DH và theo sau là 8 chữ số (VD: DH52201294)',
+                    },
+                  ]}
+                >
+                  <Input
+                    placeholder="DH123456768"
+                    maxLength={10}
+                    style={{ textTransform: 'uppercase' }}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Nhập Email"
+                  name="email"
+                  rules={[
+                    { required: true, message: 'Nhập Email' },
+                    { type: 'email', message: 'Email không hợp lệ' },
+                    {
+                      pattern: /^[a-zA-Z0-9._%+-]+@student\.stu\.edu\.vn$/,
+                      message: 'Email phải có định dạng @student.stu.edu.vn',
+                    },
+                  ]}
+                >
+                  <Input placeholder="example@student.stu.edu.vn" />
+                </Form.Item>
+                <Form.Item
+                  label="Nhập Họ Tên"
                   name="ten"
                   rules={[{ required: true, message: 'Nhập họ tên' }]}
                 >
-                  <Input required />
+                  <Input placeholder="Nguyễn Văn A" />
                 </Form.Item>
                 <Form.Item
-                  label="Nhập mã số sinh viên"
-                  name="mssv"
-                  rules={[{ required: true, message: 'Nhập mã số sinh viên' }]}
+                  label="Nhập Số Điện Thoại"
+                  name="sdt"
+                  rules={[
+                    { required: true, message: 'Nhập Số Điện Thoại' },
+                    {
+                      pattern: /^(0[3|5|7|8|9])[0-9]{8}$/,
+                      message:
+                        'Số điện thoại không hợp lệ (phải bắt đầu bằng 03, 05, 07, 08, 09 và có 10 chữ số)',
+                    },
+                  ]}
                 >
-                  <Input placeholder="DHXXXXX" />
+                  <Input placeholder="0901234567" maxLength={10} type="tel" />
                 </Form.Item>
                 <Form.Item
                   label="Chọn lớp học"
@@ -348,8 +414,14 @@ const RegisterPage = () => {
                   </Flex>
                 </Form.Item>
                 <Form.Item>
-                  <Button type="primary" htmlType="submit">
-                    GỬI
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    size="large"
+                    className="w-full"
+                    block
+                  >
+                    GỬI ĐĂNG KÝ
                   </Button>
                 </Form.Item>
               </Form>

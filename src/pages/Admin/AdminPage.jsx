@@ -22,12 +22,15 @@ function getItem(label, key, icon, children) {
 //Nội dung menu
 const items = [
   getItem('Hồ Sơ Cá Nhân', 'User', <UserOutlined />),
-  getItem('Quản Lý ', 'StudentManagement', <TeamOutlined />, [
+  getItem('Quản Lý Khuôn Mặt ', 'StudentManagement', <TeamOutlined />, [
     getItem('Danh Sách Khuôn Mặt', 'ListStudentsFaces'),
-    getItem('Thêm User', 'addUser'),
+    getItem('Đăng ký khuôn mặt', 'addFace'),
+    getItem('Trạng Thái', 'statusFace'),
   ]),
-  getItem('Đăng ký khuôn mặt', 'addFace', <UserAddOutlined />),
-  getItem('Điểm Danh Bằng Khuôn Mặt', 'FaceRollCall', <UserAddOutlined />),
+  getItem('Quản Lý Người Dùng ', 'UserManagement', <TeamOutlined />, [
+    getItem('Danh sách ', 'addUser'),
+  ]),
+  getItem('Điểm Danh', 'FaceRollCall', <UserAddOutlined />),
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];
 const AdminPage = () => {

@@ -11,6 +11,7 @@ import CheckAuth from '../auth/CheckAuth';
 import ManagerFace from '../pages/ManagerFaces/ManagerFace';
 import FaceRollCall from '../pages/FaceRollCall/FaceRollCall';
 import AddUser from '../pages/addUser/addUser';
+import StatusFace from '../pages/statusFace/StatusFace';
 const MainRouter = () => {
   return (
     <>
@@ -23,6 +24,7 @@ const MainRouter = () => {
             <Route path="ListStudentsFaces" element={<ManagerFace />} />
             <Route path="FaceRollCall" element={<FaceRollCall />} />
             <Route path="addUser" element={<AddUser />} />
+            <Route path="statusFace" element={<StatusFace />} />
           </Route>
         </Route>
         <Route path="/registerFace" element={<RegisterPage />} />
