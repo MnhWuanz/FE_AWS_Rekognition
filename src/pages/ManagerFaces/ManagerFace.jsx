@@ -64,7 +64,6 @@ const ManagerFace = () => {
           value: 'D22_TH09',
         },
       ],
-
       sorter: (a, b) => a.age - b.age,
       onFilter: (value, record) => record.lop.includes(value),
       with: '20%',

@@ -22,7 +22,7 @@ function getItem(label, key, icon, children) {
 //Nội dung menu
 const items = [
   getItem('Hồ Sơ Cá Nhân', 'User', <UserOutlined />),
-  getItem('Quản Lý Khuôn Mặt ', 'StudentManagement', <TeamOutlined />, [
+  getItem('Quản Lý Khuôn Mặt ', 'FaceManagement', <TeamOutlined />, [
     getItem('Danh Sách Khuôn Mặt', 'ListStudentsFaces'),
     getItem('Đăng ký khuôn mặt', 'addFace'),
     getItem('Trạng Thái', 'statusFace'),
@@ -30,6 +30,7 @@ const items = [
   getItem('Quản Lý Người Dùng ', 'UserManagement', <TeamOutlined />, [
     getItem('Danh sách ', 'addUser'),
   ]),
+  getItem('Quản lý sinh viên', 'StudentManagement', <TeamOutlined />),
   getItem('Điểm Danh', 'FaceRollCall', <UserAddOutlined />),
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];

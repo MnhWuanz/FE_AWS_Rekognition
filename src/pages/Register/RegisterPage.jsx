@@ -243,6 +243,7 @@ const RegisterPage = () => {
             code: values.mssv,
             name: values.ten,
             email: values.email,
+            class: values.lop,
             faceId: data.imageUrl,
           });
         } else {
@@ -250,6 +251,7 @@ const RegisterPage = () => {
             code: values.mssv,
             name: values.ten,
             email: values.email,
+            class: values.lop,
             faceId: data.imageUrl,
           });
         }
@@ -343,20 +345,6 @@ const RegisterPage = () => {
                   rules={[{ required: true, message: 'Nhập họ tên' }]}
                 >
                   <Input placeholder="Nguyễn Văn A" />
-                </Form.Item>
-                <Form.Item
-                  label="Nhập Số Điện Thoại"
-                  name="sdt"
-                  rules={[
-                    { required: true, message: 'Nhập Số Điện Thoại' },
-                    {
-                      pattern: /^(0[3|5|7|8|9])[0-9]{8}$/,
-                      message:
-                        'Số điện thoại không hợp lệ (phải bắt đầu bằng 03, 05, 07, 08, 09 và có 10 chữ số)',
-                    },
-                  ]}
-                >
-                  <Input placeholder="0901234567" maxLength={10} type="tel" />
                 </Form.Item>
                 <Form.Item
                   label="Chọn lớp học"
