@@ -27,6 +27,8 @@ import ThongBao from '../../components/function/ThongBao';
 const StatusFace = () => {
   const [dataUser, setDataUser] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const columns = [
     {
       title: 'Id',
@@ -118,7 +120,6 @@ const StatusFace = () => {
     fetchData();
   }, []);
 
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   return (
     <div>

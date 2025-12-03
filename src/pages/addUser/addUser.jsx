@@ -4,6 +4,7 @@ import {
   Checkbox,
   Form,
   Input,
+  message,
   Modal,
   Select,
   Space,
@@ -26,6 +27,7 @@ import ThongBao from '../../components/function/ThongBao';
 const AddUser = () => {
   const [dataUser, setDataUser] = useState([]);
   const [open, setOpen] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
   const columns = [
     {
       title: 'Id',
@@ -73,33 +75,51 @@ const AddUser = () => {
   const onFinish = async (values) => {
     let userId;
     try {
+      // Tạo user trước
       const userRes = await userAPI.createUser({
         email: values.email,
         password: window.btoa(values.password),
         role: values.rule,
       });
-      userId = userRes.data.data.id;
+      console.log(userRes);
+      userId = userRes.data.data;
+      console.log('Created user with ID:', userId);
+      console.log('User role:', values.rule);
 
-      if (values.rule == 'lecturer') {
+      // Nếu là giảng viên thì thêm vào bảng lecturer
+      if (values.rule === 'lecturer') {
+        console.log('Adding lecturer with data:', {
+          id: userId,
+          name: values.username,
+          email: values.email,
+          phone: values.phone,
+        });
+
         await lecturerAPI.createLecturer({
           id: userId,
           name: values.username,
           email: values.email,
           phone: values.phone,
         });
+
+        console.log('Lecturer added successfully');
+        messageApi.success(
+          `Đã tạo user và giảng viên cho ${values.username} thành công!`
+        );
+      } else {
+        messageApi.success(`Đã tạo user cho ${values.username} thành công!`);
       }
-      <ThongBao
-        level="info"
-        message="Thông báo"
-        description={`Đã tạo user cho ${values.name} thành công!`}
-        placement="topRight"
-      />;
+
       setTimeout(() => {
         handleCancel();
         fetchData();
       }, 1000);
     } catch (error) {
-      console.log('Failed to add user: ', error);
+      console.error('Failed to add user: ', error);
+      console.error('Error details:', error.response?.data);
+      messageApi.error(
+        'Tạo user thất bại: ' + (error.response?.data?.message || error.message)
+      );
     }
   };
   const fetchData = async () => {
@@ -121,6 +141,7 @@ const AddUser = () => {
   const [form] = Form.useForm();
   return (
     <div>
+      {contextHolder}
       <div className="w-full text-end font-bold text-2xl mb-4">
         <Button
           type="primary"

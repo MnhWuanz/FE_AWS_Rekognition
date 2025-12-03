@@ -30,8 +30,8 @@ const items = [
   getItem('Quản Lý Người Dùng ', 'UserManagement', <TeamOutlined />, [
     getItem('Danh sách ', 'addUser'),
   ]),
-  getItem('Quản lý sinh viên', 'StudentManagement', <TeamOutlined />),
   getItem('Điểm Danh', 'FaceRollCall', <UserAddOutlined />),
+  getItem('Quản lý ca học', 'CourseManagement', <UserAddOutlined />),
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];
 const AdminPage = () => {
