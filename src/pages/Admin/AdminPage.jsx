@@ -25,7 +25,6 @@ const items = [
   getItem('Quản Lý Khuôn Mặt ', 'FaceManagement', <TeamOutlined />, [
     getItem('Danh Sách Khuôn Mặt', 'ListStudentsFaces'),
     getItem('Đăng ký khuôn mặt', 'addFace'),
-    getItem('Trạng Thái', 'statusFace'),
   ]),
   getItem('Quản Lý Người Dùng ', 'UserManagement', <TeamOutlined />, [
     getItem('Danh sách ', 'addUser'),

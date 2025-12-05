@@ -9,7 +9,6 @@ import CheckAuth from '../auth/CheckAuth';
 import ManagerFace from '../pages/ManagerFaces/ManagerFace';
 import FaceRollCall from '../pages/FaceRollCall/FaceRollCall';
 import AddUser from '../pages/addUser/addUser';
-import StatusFace from '../pages/statusFace/StatusFace';
 
 import CourseManagement from '../pages/CourseManagement/CourseManagement';
 const MainRouter = () => {
@@ -24,7 +23,6 @@ const MainRouter = () => {
             <Route path="ListStudentsFaces" element={<ManagerFace />} />
             <Route path="FaceRollCall" element={<FaceRollCall />} />
             <Route path="addUser" element={<AddUser />} />
-            <Route path="statusFace" element={<StatusFace />} />
 
             <Route path="CourseManagement" element={<CourseManagement />} />
           </Route>

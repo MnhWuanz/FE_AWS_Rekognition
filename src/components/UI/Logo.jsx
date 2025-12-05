@@ -5,13 +5,14 @@ function Logo({
   imgSrc,
   height,
   width,
-  style,
+  widthParent,
 }) {
-  const heightClass = height ? `h-${height}` : 'h-20';
-  const widthClass = width ? `w-${width}` : 'w-20';
+  const heightClass = height ? `h-${height}` : 'h-30';
+  const widthClass = width ? `w-${width}` : 'w-30';
+  const parentStyle = { width: widthParent || '100%' };
   return (
     <div className="flex items-center  ">
-      <div style={style ? { ...style } : { width: '100%' }}>
+      <div style={parentStyle}>
         {imgSrc ? (
           <img
             src={imgSrc}
