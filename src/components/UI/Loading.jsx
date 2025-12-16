@@ -1,7 +1,7 @@
 import React from 'react';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-const Loading = ({ size = 40, tip = 'Đang tải...', full = false }) => {
+const Loading = ({ size = 100, tip = 'Đang tải...', full = false }) => {
   const antIcon = (
     <LoadingOutlined
       style={{
@@ -20,6 +20,8 @@ const Loading = ({ size = 40, tip = 'Đang tải...', full = false }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          position: 'absolute',
+          zIndex: '1',
         }}
       >
         <Spin indicator={antIcon} tip={tip} />

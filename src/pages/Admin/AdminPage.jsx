@@ -11,6 +11,8 @@ import {
 import { Modal, Layout, Menu, theme, Button } from 'antd';
 import { logout } from '../../utils/auth';
 const { Header, Content, Footer, Sider } = Layout;
+const value = JSON.parse(localStorage.getItem('user'));
+
 function getItem(label, key, icon, children) {
   return {
     key,
@@ -64,7 +66,7 @@ const AdminPage = () => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <Logo name="" imgSrc={'/logo.png'} height={'20'} width={'full'} />
+        <Logo name="" imgSrc={'/logo.png'} height={'50'} width={'full'} />
         <Menu
           theme="dark"
           mode="inline"
@@ -84,7 +86,7 @@ const AdminPage = () => {
       <Layout>
         <Header style={{ padding: 0, background: '#0C2B4E' }}>
           <h1 style={{ float: 'left', color: 'white', marginLeft: '20px' }}>
-            Xin Chào
+            Xin Chào {value.name}
           </h1>
           <div style={{ float: 'right', marginRight: '20px' }}>
             <CalendarOutlined style={{ color: 'white' }} />

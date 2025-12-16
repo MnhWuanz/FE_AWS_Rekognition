@@ -13,7 +13,6 @@ function LoginPage() {
   const [user, setUser] = useState({ email: '', password: '' });
   const [rememberLogin, setRememberLogin] = useState(false);
   const [api, contextHolder] = notification.useNotification();
-
   //Xử lý đăng nhập
   const handleLogin = async () => {
     const u = await login(user.email, user.password);
