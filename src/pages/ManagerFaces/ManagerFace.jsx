@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Image, message, Modal, Space, Table } from 'antd';
+import { Button, Image, message, Modal, Popconfirm, Space, Table } from 'antd';
 import {
   DeleteOutlined,
   ExclamationCircleFilled,
@@ -122,15 +122,18 @@ const ManagerFace = () => {
             <InfoOutlined />
             Thông Tin
           </Button>
-          <Button
-            type="primary"
-            danger
-            block
-            onClick={() => handleDelet(record.id)}
+          <Popconfirm
+            title="Delete the User"
+            description="Bạn có muốn xóa sinh viên này ?"
+            onConfirm={() => handleDelet(record.id)}
+            okText="Có"
+            cancelText="Không"
           >
-            <DeleteOutlined />
-            Xoá
-          </Button>
+            <Button type="primary" danger block>
+              <DeleteOutlined />
+              Xoá
+            </Button>
+          </Popconfirm>
         </Space>
       ),
       with: '30%',
@@ -191,6 +194,7 @@ const ManagerFace = () => {
     setOpenmodal(true);
   };
   const handleDelet = async (id) => {
+    setLoading(true);
     try {
       const user = await studentApi.getById(id);
       const data = user.data.data;
@@ -201,6 +205,8 @@ const ManagerFace = () => {
     } catch (error) {
       console.log(error);
       errorr(`Xóa ${id} thất bại`);
+    } finally {
+      setLoading(false);
     }
   };
   const handleDeleteSelected = async () => {

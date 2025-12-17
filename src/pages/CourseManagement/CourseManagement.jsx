@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Button,
+  DatePicker,
   Form,
   Input,
   message,
@@ -17,7 +18,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import courseAPI from '../../api/apiUser/CourseAPI';
-import lecturerAPI from '../../api/apiUser/LectureAPI';
+import userAPI from '../../api/apiUser/UserAPI';
 
 const CourseManagement = () => {
   const [form] = Form.useForm();
@@ -27,6 +28,7 @@ const CourseManagement = () => {
   const [openModal, setOpenModal] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const { RangePicker } = DatePicker;
   // Columns cho bảng môn học
   const columns = [
     {
@@ -58,16 +60,18 @@ const CourseManagement = () => {
     },
     {
       title: 'Thời gian bắt đầu',
-      dataIndex: 'starttime',
-      key: 'starttime',
-      render: (time) => (time ? new Date(time).toLocaleString('vi-VN') : '-'),
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render: (time) =>
+        time ? new Date(time).toLocaleDateString('vi-VN') : '-',
       width: '15%',
     },
     {
       title: 'Thời gian kết thúc',
-      dataIndex: 'endtime',
-      key: 'endtime',
-      render: (time) => (time ? new Date(time).toLocaleString('vi-VN') : '-'),
+      dataIndex: 'endTime',
+      key: 'endTime',
+      render: (time) =>
+        time ? new Date(time).toLocaleDateString('vi-VN') : '-',
       width: '15%',
     },
     {
@@ -118,9 +122,10 @@ const CourseManagement = () => {
   // Fetch lecturers
   const fetchLecturers = async () => {
     try {
-      const res = await lecturerAPI.getAll();
-      const data = res.data.data || res.data;
-      setLecturers(data);
+      const res = await userAPI.getAll();
+      const data = res.data.data;
+      const result = data.filter((user) => user.role === 'lecturer');
+      setLecturers(result);
     } catch (error) {
       console.error('Error fetching lecturers:', error);
       messageApi.error('Không thể tải danh sách giảng viên');
@@ -175,16 +180,23 @@ const CourseManagement = () => {
   // Handle form submit
   const handleSubmit = async (values) => {
     setLoading(true);
+    const data = values.starttime;
     try {
-      if (editingCourse) {
-        // Update course
-        await courseAPI.updateCourse(editingCourse.courseid, values);
-        messageApi.success('Cập nhật môn học thành công');
-      } else {
-        // Create new course
-        await courseAPI.createCourse(values);
-        messageApi.success('Thêm môn học thành công');
-      }
+      // if (editingCourse) {
+      //   // Update course
+      //   await courseAPI.updateCourse(editingCourse.courseid, values);
+      //   messageApi.success('Cập nhật môn học thành công');
+      // } else {
+      //   // Create new course
+      // }
+      await courseAPI.createCourse({
+        code: values.code,
+        name: values.name,
+        userId: values.userId,
+        startTime: data[0].toISOString(),
+        endTime: data[1].toISOString(),
+      });
+      messageApi.success('Thêm môn học thành công');
       setOpenModal(false);
       form.resetFields();
       fetchCourses();
@@ -208,7 +220,6 @@ const CourseManagement = () => {
           justifyContent: 'space-between',
         }}
       >
-        <h2>Quản lý môn học</h2>
         <Space>
           <Button icon={<ReloadOutlined />} onClick={fetchCourses}>
             Làm mới
@@ -286,23 +297,13 @@ const CourseManagement = () => {
           </Form.Item>
 
           <Form.Item
-            label="Thời gian bắt đầu"
+            label="Thời gian bắt đầu - kết thức"
             name="starttime"
             rules={[
               { required: true, message: 'Vui lòng nhập thời gian bắt đầu' },
             ]}
           >
-            <Input type="datetime-local" />
-          </Form.Item>
-
-          <Form.Item
-            label="Thời gian kết thúc"
-            name="endtime"
-            rules={[
-              { required: true, message: 'Vui lòng nhập thời gian kết thúc' },
-            ]}
-          >
-            <Input type="datetime-local" />
+            <RangePicker />
           </Form.Item>
 
           <Form.Item>

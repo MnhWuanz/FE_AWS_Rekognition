@@ -111,13 +111,14 @@ const AddUser = () => {
     }
   };
   const onFinish = async (values) => {
+    setLoading(true);
     try {
       // Tạo user trước
       await userAPI.createUser({
         email: values.email,
         password: CryptoJS.MD5(values.password).toString(),
         role: values.rule,
-        name: values.name,
+        name: values.username,
         phone: values.phone,
       });
       setTimeout(() => {
@@ -130,6 +131,8 @@ const AddUser = () => {
       messageApi.error(
         'Tạo user thất bại: ' + (error.response?.data?.message || error.message)
       );
+    } finally {
+      setLoading(false);
     }
   };
   const fetchData = async () => {

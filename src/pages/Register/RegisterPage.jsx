@@ -246,7 +246,7 @@ const RegisterPage = () => {
           email: values.email,
           class: values.lop,
           faceId: data.imageUrl,
-          faceUrl: null,
+          faceUrl: 'null',
         });
         form.resetFields();
         success(data.message);
