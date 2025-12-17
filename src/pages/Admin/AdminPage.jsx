@@ -32,7 +32,8 @@ const items = [
     getItem('Danh sách ', 'addUser'),
   ]),
   getItem('Điểm Danh', 'FaceRollCall', <UserAddOutlined />),
-  getItem('Quản lý ca học', 'CourseManagement', <UserAddOutlined />),
+  getItem('Quản lý môn học', 'CourseManagement', <UserAddOutlined />),
+  getItem('Quản lý ca học', 'SessionManagement', <UserAddOutlined />),
   getItem('Logout', 'Logout', <PoweroffOutlined />),
 ];
 const AdminPage = () => {
@@ -44,6 +45,7 @@ const AdminPage = () => {
   const location = useLocation();
   const selectKey = useMemo(() => {
     const p = location.pathname.replace('/admin/', '');
+    console.log(p);
     if (p == '/admin') return 'User';
     return p;
   }, [location.pathname]);

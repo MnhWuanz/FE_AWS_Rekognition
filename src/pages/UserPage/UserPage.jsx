@@ -28,20 +28,23 @@ const UserPage = () => {
       await userAPI.updateUser({
         id: idUser,
         email: values.email,
-        password: CryptoJS.MD5(values.password).toString(),
+        password: CryptoJS.MD5(values.newpassword).toString(),
         role: values.role,
         name: values.name,
         phone: values.phone,
       });
       success();
-      localStorage.setItem('user', {
-        id: idUser,
-        email: values.email,
-        password: CryptoJS.MD5(values.password).toString(),
-        role: values.role,
-        name: values.name,
-        phone: values.phone,
-      });
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: idUser,
+          email: values.email,
+          role: values.role,
+          name: values.name,
+          phone: values.phone,
+        })
+      );
+      form.resetFields();
       setLoading(false);
     } catch (error) {
       errorMes();
@@ -120,7 +123,7 @@ const UserPage = () => {
             </Form.Item>
             <Form.Item
               label={<span className="font-semibold">Mật khẩu</span>}
-              name="password"
+              name="newpassword"
               rules={[
                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
                 {
@@ -143,7 +146,7 @@ const UserPage = () => {
                 { required: true, message: 'Vui lòng nhập lại mật khẩu!' },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (!value || getFieldValue('password') === value) {
+                    if (!value || getFieldValue('newpassword') === value) {
                       return Promise.resolve();
                     }
                     return Promise.reject(new Error('Mật khẩu không khớp!'));

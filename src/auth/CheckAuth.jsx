@@ -9,5 +9,4 @@ const CheckAuth = ({ allowedRoles }) => {
   }
   return <Outlet />;
 };
-
 export default CheckAuth;

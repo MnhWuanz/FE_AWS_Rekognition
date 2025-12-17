@@ -7,7 +7,7 @@ import { fileToBase64 } from 'file64';
 import CameraModal from '../../components/function/CameraModal';
 import { get_token } from '../../api/tokenAPI';
 import './css/RegisterPage.css';
-import { checkMSSV, checkSV } from './utils/checkmssv';
+import { checkMSSV } from './utils/checkmssv';
 import studentApi from '../../api/apiUser/StudentAPI';
 
 const RegisterPage = () => {
@@ -191,7 +191,15 @@ const RegisterPage = () => {
         });
       });
   };
-
+  // const now = new Date();
+  // const formattedDateTime = now.toLocaleString('vi-VN', {
+  //   hour: '2-digit',
+  //   minute: '2-digit',
+  //   second: '2-digit',
+  //   day: '2-digit',
+  //   month: '2-digit',
+  //   year: 'numeric',
+  // });
   const handleChange = ({ fileList: newList }) => {
     // Chỉ cho tối đa 1 ảnh
     const oneFileList = newList.slice(-1);
@@ -230,36 +238,20 @@ const RegisterPage = () => {
         }
       );
       const data = await res.json();
-      if (data.success === false) {
-        errorr(data.message);
-        return;
-      }
-      try {
-        const sv = await checkSV(values.mssv);
-        console.log(values.mssv);
-        if (sv !== 0) {
-          await studentApi.updateUser({
-            id: sv,
-            code: values.mssv,
-            name: values.ten,
-            email: values.email,
-            class: values.lop,
-            faceId: data.imageUrl,
-          });
-        } else {
-          await studentApi.createUser({
-            code: values.mssv,
-            name: values.ten,
-            email: values.email,
-            class: values.lop,
-            faceId: data.imageUrl,
-          });
-        }
-        success('Đã gửi thành công!');
+      if (data.success) {
+        console.log(data.imageUrl);
+        await studentApi.createStudent({
+          code: values.mssv,
+          name: values.ten,
+          email: values.email,
+          class: values.lop,
+          faceId: data.imageUrl,
+          faceUrl: null,
+        });
         form.resetFields();
-      } catch (error) {
-        errorr('Gửi thất bại!');
-        console.log(error);
+        success(data.message);
+      } else {
+        errorr(data.message);
       }
     } catch (error) {
       errorr('Gửi thất bại');

@@ -10,7 +10,9 @@ import {
   Space,
   Table,
   Tag,
+  Popconfirm,
 } from 'antd';
+import CryptoJS from 'crypto-js';
 import {
   DeleteOutlined,
   InfoOutlined,
@@ -20,7 +22,6 @@ import {
 } from '@ant-design/icons';
 const { Column, ColumnGroup } = Table;
 import userAPI from '../../api/apiUser/UserAPI';
-import lecturerAPI from '../../api/apiUser/LectureAPI';
 import Loading from '../../components/UI/Loading';
 import ThongBao from '../../components/function/ThongBao';
 
@@ -42,24 +43,48 @@ const AddUser = () => {
       width: '20%',
     },
     {
+      title: 'TÊN',
+      dataIndex: 'name',
+      key: 'name',
+      width: '20%',
+    },
+    {
+      title: 'SỐ ĐIỆN THOẠI',
+      dataIndex: 'phone',
+      key: 'phone',
+      with: '10%',
+    },
+    {
       title: 'CHỨC VỤ',
       dataIndex: 'role',
       key: 'role',
       width: '15%',
+      render: (text) => {
+        if (text === 'admin') {
+          return <Tag color={'gold'}>QUẢN TRỊ VIÊN</Tag>;
+        }
+        if (text === 'lecturer') {
+          return <Tag color={'blue'}>GIẢNG VIÊN</Tag>;
+        }
+      },
     },
     {
       title: 'Action',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space direction="vertical" className="action-buttons">
-          <Button type="default" block>
-            <InfoOutlined />
-            Thông Tin
-          </Button>
-          <Button type="primary" danger block>
-            <DeleteOutlined />
-            Xoá
-          </Button>
+          <Popconfirm
+            title="Delete the User"
+            description="Bạn có muốn xóa user này ?"
+            onConfirm={() => onDeleteUser(record)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button type="primary" danger block>
+              <DeleteOutlined />
+              Xoá
+            </Button>
+          </Popconfirm>
         </Space>
       ),
       width: '15%',
@@ -72,44 +97,29 @@ const AddUser = () => {
     form.resetFields();
     setOpen(false);
   };
+  const onDeleteUser = async (values) => {
+    setLoading(true);
+    try {
+      await userAPI.deleteUser(values.id);
+      messageApi.success(`Xóa user ${values.id} thành công `);
+      fetchData();
+    } catch (error) {
+      console.log(error);
+      messageApi.error(`Xóa user ${values.id} thất bại `);
+    } finally {
+      setLoading(false);
+    }
+  };
   const onFinish = async (values) => {
-    let userId;
     try {
       // Tạo user trước
-      const userRes = await userAPI.createUser({
+      await userAPI.createUser({
         email: values.email,
-        password: window.btoa(values.password),
+        password: CryptoJS.MD5(values.password).toString(),
         role: values.rule,
+        name: values.name,
+        phone: values.phone,
       });
-      console.log(userRes);
-      userId = userRes.data.data;
-      console.log('Created user with ID:', userId);
-      console.log('User role:', values.rule);
-
-      // Nếu là giảng viên thì thêm vào bảng lecturer
-      if (values.rule === 'lecturer') {
-        console.log('Adding lecturer with data:', {
-          id: userId,
-          name: values.username,
-          email: values.email,
-          phone: values.phone,
-        });
-
-        await lecturerAPI.createLecturer({
-          id: userId,
-          name: values.username,
-          email: values.email,
-          phone: values.phone,
-        });
-
-        console.log('Lecturer added successfully');
-        messageApi.success(
-          `Đã tạo user và giảng viên cho ${values.username} thành công!`
-        );
-      } else {
-        messageApi.success(`Đã tạo user cho ${values.username} thành công!`);
-      }
-
       setTimeout(() => {
         handleCancel();
         fetchData();

@@ -11,6 +11,7 @@ import FaceRollCall from '../pages/FaceRollCall/FaceRollCall';
 import AddUser from '../pages/addUser/addUser';
 
 import CourseManagement from '../pages/CourseManagement/CourseManagement';
+import SessionManagement from '../pages/SessionManagement/SessionManagement';
 const MainRouter = () => {
   return (
     <>
@@ -23,7 +24,7 @@ const MainRouter = () => {
             <Route path="ListStudentsFaces" element={<ManagerFace />} />
             <Route path="FaceRollCall" element={<FaceRollCall />} />
             <Route path="addUser" element={<AddUser />} />
-
+            <Route path="SessionManagement" element={<SessionManagement />} />
             <Route path="CourseManagement" element={<CourseManagement />} />
           </Route>
         </Route>

@@ -2,20 +2,22 @@ import React, { useEffect, useState } from 'react';
 import { Button, Image, message, Modal, Space, Table } from 'antd';
 import {
   DeleteOutlined,
+  ExclamationCircleFilled,
   InfoOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
 import studentApi from '../../api/apiUser/StudentAPI';
 import Loading from '../../components/UI/Loading';
+import { deleteFaceS3 } from '../../api/deleteFaceS3';
 const ManagerFace = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [dataFace, setDataFace] = useState('');
   const [openmodal, setOpenmodal] = useState(false);
+  const [openmodaldelete, setOpenmodalDelete] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const columns = [
@@ -70,7 +72,6 @@ const ManagerFace = () => {
       onFilter: (value, record) => record.class.includes(value),
       with: '20%',
     },
-
     {
       title: 'Họ Tên Sinh Viên',
       dataIndex: 'name',
@@ -125,7 +126,7 @@ const ManagerFace = () => {
             type="primary"
             danger
             block
-            onClick={() => handleDelet(record)}
+            onClick={() => handleDelet(record.id)}
           >
             <DeleteOutlined />
             Xoá
@@ -189,15 +190,25 @@ const ManagerFace = () => {
     setSelectedStudent(record);
     setOpenmodal(true);
   };
-  const handleDelet = async (record) => {
+  const handleDelet = async (id) => {
     try {
-      await studentApi.deleteUser(record.id);
-      success('Xóa thành công');
+      const user = await studentApi.getById(id);
+      const data = user.data.data;
+      await studentApi.deleteStudent(id);
+      await deleteFaceS3(data.class, data.code);
+      success(`Xóa ${id} thành công`);
       fetchData();
     } catch (error) {
       console.log(error);
-      errorr('Xóa thất bại');
+      errorr(`Xóa ${id} thất bại`);
     }
+  };
+  const handleDeleteSelected = async () => {
+    setOpenmodalDelete(false);
+    selectedRowKeys.forEach((element) => {
+      handleDelet(element);
+      setSelectedRowKeys([]);
+    });
   };
   const fetchData = async () => {
     setLoading(true);
@@ -223,8 +234,25 @@ const ManagerFace = () => {
   return (
     <>
       {contextHolder}
-      <div style={{ marginBottom: 10, textAlign: 'right' }}>
-        <Button icon={<ReloadOutlined />} onClick={fetchData}>
+      <div
+        style={{
+          marginBottom: 10,
+          textAlign: 'right',
+          gap: '20px',
+          display: 'flex',
+        }}
+      >
+        <Button
+          icon={<DeleteOutlined />}
+          size="large"
+          danger
+          type="primary"
+          onClick={() => setOpenmodalDelete(true)}
+          disabled={selectedRowKeys.length === 0}
+        >
+          Xóa ({selectedRowKeys.length})
+        </Button>
+        <Button icon={<ReloadOutlined />} type="primary" onClick={fetchData}>
           Refresh
         </Button>
       </div>
@@ -270,6 +298,15 @@ const ManagerFace = () => {
           </>
         )}
       </Modal>
+      <Modal
+        open={openmodaldelete}
+        title={`Bạn có chắc chắn muốn xóa ${selectedRowKeys.length} mục đã chọn không?`}
+        content={'Hành động này không thể hoàn tác.'}
+        icon={<ExclamationCircleFilled />}
+        onOk={handleDeleteSelected}
+        okType={'danger'}
+        onCancel={() => setOpenmodalDelete(false)}
+      ></Modal>
     </>
   );
 };
