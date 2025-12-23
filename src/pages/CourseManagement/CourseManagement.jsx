@@ -6,6 +6,7 @@ import {
   Input,
   message,
   Modal,
+  Popconfirm,
   Select,
   Space,
   Table,
@@ -19,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import courseAPI from '../../api/apiUser/CourseAPI';
 import userAPI from '../../api/apiUser/UserAPI';
+import dayjs from 'dayjs';
 
 const CourseManagement = () => {
   const [form] = Form.useForm();
@@ -87,19 +89,34 @@ const CourseManagement = () => {
           >
             Sửa
           </Button>
-          <Button
-            type="primary"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
+          <Popconfirm
+            title="Delete the Course"
+            description="Bạn có muốn xóa khoa hoc này ?"
+            onConfirm={() => handleDeleteCourse(record.id)}
+            okText="Có"
+            cancelText="Không"
           >
-            Xóa
-          </Button>
+            <Button type="primary" danger icon={<DeleteOutlined />}>
+              Xóa
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
-
+  const handleDeleteCourse = async (id) => {
+    setLoading(true);
+    try {
+      await courseAPI.deleteCourse(id);
+      messageApi.success('Xóa môn học thành công');
+      fetchCourses();
+    } catch (errorr) {
+      console.log(errorr);
+      messageApi.error('Xóa môn học thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch courses
   const fetchCourses = async () => {
     setLoading(true);
@@ -150,31 +167,9 @@ const CourseManagement = () => {
       code: record.code,
       name: record.name,
       userId: record.userId,
-      starttime: record.starttime,
-      endtime: record.endtime,
+      starttime: [dayjs(record.startTime), dayjs(record.endTime)],
     });
     setOpenModal(true);
-  };
-
-  // Handle delete course
-  const handleDelete = async (record) => {
-    Modal.confirm({
-      title: 'Xác nhận xóa',
-      content: `Bạn có chắc chắn muốn xóa môn học "${record.name}"?`,
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
-      onOk: async () => {
-        try {
-          await courseAPI.deleteCourse(record.courseid);
-          messageApi.success('Xóa môn học thành công');
-          fetchCourses();
-        } catch (error) {
-          console.error('Error deleting course:', error);
-          messageApi.error('Xóa môn học thất bại');
-        }
-      },
-    });
   };
 
   // Handle form submit
@@ -182,23 +177,28 @@ const CourseManagement = () => {
     setLoading(true);
     const data = values.starttime;
     try {
-      // if (editingCourse) {
-      //   // Update course
-      //   await courseAPI.updateCourse(editingCourse.courseid, values);
-      //   messageApi.success('Cập nhật môn học thành công');
-      // } else {
-      //   // Create new course
-      // }
-      await courseAPI.createCourse({
-        code: values.code,
-        name: values.name,
-        userId: values.userId,
-        startTime: data[0].toISOString(),
-        endTime: data[1].toISOString(),
-      });
-      messageApi.success('Thêm môn học thành công');
+      if (editingCourse) {
+        // Update course
+        await courseAPI.updateCourse({
+          id: editingCourse.id,
+          code: values.code,
+          name: values.name,
+          startTime: data[0].toISOString(),
+          endTime: data[1].toISOString(),
+        });
+        messageApi.success('Cập nhật môn học thành công');
+      } else {
+        await courseAPI.createCourse({
+          code: values.code,
+          name: values.name,
+          userId: values.userId,
+          startTime: data[0].toISOString(),
+          endTime: data[1].toISOString(),
+        });
+        messageApi.success('Thêm môn học thành công');
+        form.resetFields();
+      }
       setOpenModal(false);
-      form.resetFields();
       fetchCourses();
     } catch (error) {
       console.error('Error saving course:', error);
