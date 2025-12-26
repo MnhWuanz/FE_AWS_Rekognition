@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Col, message, Row, Select, Space, Table, Tag } from 'antd';
-import { ReloadOutlined } from '@ant-design/icons';
+import { Button, Col, message, Row, Select, Space, Table, Tag, Input } from 'antd';
+import { ReloadOutlined, SearchOutlined, FileExcelOutlined } from '@ant-design/icons';
+import ExcelJS from 'exceljs';
 import courseAPI from '../../api/apiUser/CourseAPI';
 import sessionApi from '../../api/apiUser/SessionAPI';
 import studentApi from '../../api/apiUser/StudentAPI';
@@ -21,6 +22,9 @@ const SessionManagement = () => {
 
   // State cho danh sách điểm danh
   const [attendanceRecords, setAttendanceRecords] = useState([]);
+
+  // State cho tìm kiếm
+  const [searchText, setSearchText] = useState('');
 
   // Map thứ
   const daysMap = {
@@ -152,20 +156,20 @@ const SessionManagement = () => {
       1: '07:00',
       2: '07:50',
       3: '08:40',
-      4: '09:40',
-      5: '10:30',
-      6: '11:20',
-      7: '12:30',
-      8: '13:20',
-      9: '14:10',
-      10: '15:10',
+      4: '09:35',
+      5: '10:25',
+      6: '11:15',
+      7: '12:35',
+      8: '13:25',
+      9: '14:15',
+      10: '15:15',
       11: '16:00',
       12: '16:50',
       13: '17:45',
       14: '18:35',
       15: '19:25',
     };
-    return periodTimes[period] || '07:00';
+    return periodTimes[period];
   };
 
   // Hàm xét trạng thái điểm danh
@@ -173,11 +177,9 @@ const SessionManagement = () => {
     if (!checkInTime) {
       return { status: 'absent', label: '✗ Vắng', color: 'error' };
     }
-
     const checkIn = new Date(checkInTime);
     const startTime = getClassPeriodStartTime(startPeriod);
     const [hours, minutes] = startTime.split(':').map(Number);
-
     const classStart = new Date(checkIn);
     classStart.setHours(hours, minutes, 0, 0);
 
@@ -185,53 +187,48 @@ const SessionManagement = () => {
 
     if (diffMinutes <= 15) {
       return { status: 'on-time', label: '✓ Đúng giờ', color: 'success' };
+    } else if (diffMinutes >= 30) {
+      return { status: 'absent', label: '✗ Vắng', color: 'error' };
     } else {
       return { status: 'late', label: '⚠ Đi trễ', color: 'warning' };
     }
   };
-
   // Fetch attendance của session
   const fetchAttendance = async (sessionId, courseId) => {
     setLoading(true);
     try {
       // Lấy thông tin course để biết startPeriod
       const courseInfo = coursesWithSchedule.find((c) => c.id === courseId);
-      const startPeriod = courseInfo?.startPeriod || 1;
+      const startPeriod = courseInfo?.startPeriod || null;
 
       // Lấy tất cả enrolments của môn học
       const enrolRes = await enrolmentApi.getAll();
-      const allEnrolments = enrolRes.data.data || enrolRes.data || [];
+      const allEnrolments = enrolRes.data.data;
       const courseEnrolments = allEnrolments.filter(
-        (enrol) => enrol.courseId === courseId || enrol.course_id === courseId
+        (enrol) => enrol.courseId === courseId 
       );
 
       // Lấy tất cả attendance của session
       const attRes = await attendanceApi.getAll();
-      const allAttendance = attRes.data.data || attRes.data || [];
+      const allAttendance = attRes.data.data;
       const sessionAttendance = allAttendance.filter(
-        (att) => att.sessionId === sessionId || att.session_id === sessionId
+        (att) => att.sessionId === sessionId
       );
 
       // Lấy tất cả students
       const studentsRes = await studentApi.getAll();
-      const allStudentsData = studentsRes.data.data || studentsRes.data || [];
+      const allStudentsData = studentsRes.data.data ;
 
       // Map tất cả sinh viên enrolled với attendance của họ
       const attendanceWithInfo = courseEnrolments.map((enrol) => {
-        const studentId = enrol.studentId || enrol.student_id;
+        const studentId = enrol.studentId;
         const student = allStudentsData.find((s) => s.id === studentId);
-
         // Tìm attendance record của sinh viên này trong session
         const attendanceRecord = sessionAttendance.find(
-          (att) => (att.studentId || att.student_id) === studentId
+          (att) => (att.studentId === studentId)
         );
-
-        const checkInTime =
-          attendanceRecord?.checkInTime ||
-          attendanceRecord?.check_in_time ||
-          null;
+        const checkInTime = attendanceRecord?.date; 
         const statusInfo = getAttendanceStatus(checkInTime, startPeriod);
-
         return {
           id: attendanceRecord?.id || `enrol-${enrol.id}`,
           studentId: studentId,
@@ -239,6 +236,7 @@ const SessionManagement = () => {
           name: student?.name || 'N/A',
           email: student?.email || 'N/A',
           class: student?.class || '',
+          faceId: student?.faceId || null,
           status: statusInfo.status,
           statusLabel: statusInfo.label,
           statusColor: statusInfo.color,
@@ -273,6 +271,232 @@ const SessionManagement = () => {
   };
 
   const selectedCourseInfo = getSelectedCourseInfo();
+
+  // Hàm chuyển đổi URL ảnh thành base64
+  const getBase64FromUrl = async (url) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      return null;
+    }
+  };
+
+  // Hàm xuất Excel
+  const handleExportExcel = async () => {
+    if (!selectedCourseSchedule) {
+      messageApi.warning('Vui lòng chọn môn học để xuất');
+      return;
+    }
+
+    setLoading(true);
+    messageApi.loading('Đang tạo file Excel cho tất cả tuần...');
+
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Bảng Điểm Danh');
+
+      // Lấy thông tin môn học
+      const courseName = selectedCourseInfo?.name || '';
+      const courseCode = selectedCourseInfo?.parsedCode || '';
+      const startPeriod = selectedCourseInfo?.startPeriod || null;
+
+      // Lấy tất cả sessions của môn học
+      const allSessions = filteredSessions.sort((a, b) => {
+        // Sắp xếp theo tuần
+        const weekA = parseInt(a.name.match(/\d+/)?.[0] || 0);
+        const weekB = parseInt(b.name.match(/\d+/)?.[0] || 0);
+        return weekA - weekB;
+      });
+
+      // Lấy danh sách sinh viên enrolled
+      const enrolRes = await enrolmentApi.getAll();
+      const allEnrolments = enrolRes.data.data;
+      const courseEnrolments = allEnrolments.filter(
+        (enrol) => enrol.courseId === selectedCourseSchedule
+      );
+
+      // Lấy tất cả students
+      const studentsRes = await studentApi.getAll();
+      const allStudentsData = studentsRes.data.data;
+
+      // Lấy tất cả attendance
+      const attRes = await attendanceApi.getAll();
+      const allAttendance = attRes.data.data;
+
+      // Tạo danh sách sinh viên với thông tin
+      const students = courseEnrolments.map((enrol) => {
+        const student = allStudentsData.find((s) => s.id === enrol.studentId);
+        return {
+          studentId: enrol.studentId,
+          code: student?.code || 'N/A',
+          name: student?.name || 'N/A',
+          class: student?.class || '',
+          faceId: student?.faceId || null,
+        };
+      });
+
+      // Số cột cố định + số tuần + ghi chú
+      const fixedCols = 5; // STT, Ảnh, MSSV, Họ tên, Lớp
+      const totalCols = fixedCols + allSessions.length + 1; // + Ghi chú
+      // Tiêu đề
+      worksheet.mergeCells(1, 1, 1, totalCols);
+      const titleCell = worksheet.getCell('A1');
+      titleCell.value = `BẢNG ĐIỂM DANH - ${courseName} (${courseCode})`;
+      titleCell.font = { bold: true, size: 16 };
+      titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      worksheet.mergeCells(2, 1, 2, totalCols);
+      const subtitleCell = worksheet.getCell('A2');
+      subtitleCell.value = `${selectedCourseInfo?.dayName || ''}, Tiết ${selectedCourseInfo?.classPeriod || ''}, Phòng ${selectedCourseInfo?.room || ''}`;
+      subtitleCell.font = { size: 12, italic: true };
+      subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Header row
+      const headers = ['STT', 'Ảnh', 'MSSV', 'Họ và tên', 'Lớp'];
+      allSessions.forEach((session, idx) => {
+        headers.push(String(idx + 1).padStart(2, '0')); // 01, 02, 03...
+      });
+      headers.push('Ghi chú');
+
+      const headerRow = worksheet.addRow(headers);
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4472C4' } };
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' },
+        };
+      });
+
+      // Set column widths
+      worksheet.getColumn(1).width = 5;   // STT
+      worksheet.getColumn(2).width = 10;  // Ảnh
+      worksheet.getColumn(3).width = 14;  // MSSV
+      worksheet.getColumn(4).width = 22;  // Họ tên
+      worksheet.getColumn(5).width = 10;  // Lớp
+      for (let i = 0; i < allSessions.length; i++) {
+        worksheet.getColumn(fixedCols + i + 1).width = 5; // Các cột tuần
+      }
+      worksheet.getColumn(totalCols).width = 12; // Ghi chú
+
+      // Add data rows
+      for (let i = 0; i < students.length; i++) {
+        const student = students[i];
+        const rowNumber = i + 4; // Start from row 4
+
+        // Dữ liệu cơ bản
+        const rowData = [
+          i + 1,
+          '', // Ảnh
+          student.code,
+          student.name,
+          student.class,
+        ];
+
+        // Thêm dữ liệu điểm danh cho từng tuần
+        let totalAbsent = 0;
+        for (const session of allSessions) {
+          const attendance = allAttendance.find(
+            (att) => att.sessionId === session.id && att.studentId === student.studentId
+          );
+          
+          if (attendance) {
+            const statusInfo = getAttendanceStatus(attendance.date, startPeriod);
+            if (statusInfo.status === 'on-time') {
+              rowData.push('✓');
+            } else if (statusInfo.status === 'late') {
+              rowData.push('T'); // Trễ
+            } else {
+              rowData.push('');
+              totalAbsent++;
+            }
+          } else {
+            rowData.push('');
+            totalAbsent++;
+          }
+        }
+
+        // Ghi chú (số buổi vắng)
+        rowData.push(totalAbsent > 0 ? `Vắng: ${totalAbsent}` : '');
+
+        const row = worksheet.addRow(rowData);
+        row.height = 55;
+
+        // Style
+        row.eachCell((cell, colNumber) => {
+          cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' },
+          };
+
+          // Màu cho các ô điểm danh
+          if (colNumber > fixedCols && colNumber < totalCols) {
+            const value = cell.value;
+            if (value === '✓') {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD4EDDA' } };
+            } else if (value === 'T') {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3CD' } };
+            }
+          }
+        });
+
+        // Thêm ảnh nếu có faceId
+        if (student.faceId) {
+          try {
+            const base64Image = await getBase64FromUrl(student.faceId);
+            if (base64Image) {
+              const imageId = workbook.addImage({
+                base64: base64Image,
+                extension: 'jpeg',
+              });
+              worksheet.addImage(imageId, {
+                tl: { col: 1, row: rowNumber - 1 },
+                ext: { width: 45, height: 50 },
+              });
+            }
+          } catch (error) {
+            console.error('Error adding image for', student.code, error);
+          }
+        }
+      }
+
+      // Thêm chú thích
+      const legendRow = worksheet.addRow([]);
+      worksheet.addRow(['Chú thích:', '✓ = Đúng giờ', 'T = Đi trễ', '(trống) = Vắng']);
+
+      // Tạo file và download
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `DiemDanh_${courseCode}_TatCaTuan.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      messageApi.success('Xuất Excel thành công!');
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      messageApi.error('Lỗi khi xuất Excel: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ padding: '24px', background: '#f0f2f5', minHeight: '100vh' }}>
@@ -411,6 +635,8 @@ const SessionManagement = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
             }}
           >
             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>
@@ -420,6 +646,31 @@ const SessionManagement = () => {
                   ?.name
               }
             </h3>
+            
+            {/* /* Ô tìm kiếm */ }
+            <Input
+              placeholder=" Tìm theo tên sinh viên hoặc lớp..."
+              prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+              allowClear
+              style={{ 
+                width: '300px', 
+                borderRadius: '6px',
+              }}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+            
+            {/* Nút xuất Excel */}
+            <Button
+              type="primary"
+              icon={<FileExcelOutlined />}
+              onClick={handleExportExcel}
+              loading={loading}
+              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+            >
+              Xuất Excel
+            </Button>
+            
             <Space>
               <Tag
                 color="blue"
@@ -492,12 +743,27 @@ const SessionManagement = () => {
                 key: 'status',
                 width: '12%',
                 align: 'center',
+                 filters: [
+         {
+        text: 'Đúng giờ',
+        value: 'on-time',
+      },
+      {
+        text: 'Đi trễ',
+        value: 'late',
+      },
+      {
+        text: 'Vắng',
+        value: 'absent',
+      },
+    ],
+    onFilter: (value, record) => record.status.indexOf(value) === 0,
                 render: (_, record) => (
                   <Tag color={record.statusColor}>{record.statusLabel}</Tag>
                 ),
               },
               {
-                title: 'Thời gian check-in',
+                title: 'Thời gian vào',
                 dataIndex: 'checkInTime',
                 key: 'checkInTime',
                 width: '16%',
@@ -506,7 +772,15 @@ const SessionManagement = () => {
                   value ? new Date(value).toLocaleString('vi-VN') : '-',
               },
             ]}
-            dataSource={attendanceRecords}
+            dataSource={attendanceRecords.filter(record => {
+              if (!searchText) return true;
+              const search = searchText.toLowerCase();
+              return (
+                record.name?.toLowerCase().includes(search) ||
+                record.class?.toLowerCase().includes(search) ||
+                record.code?.toLowerCase().includes(search)
+              );
+            })}
             loading={loading}
             pagination={{
               pageSize: 10,
