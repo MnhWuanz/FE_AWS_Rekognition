@@ -570,9 +570,20 @@ const SessionManagement = () => {
             />
           </Col>
 
-          <Col span={4}>
+          <Col span={6}>
             <div style={{ marginBottom: '8px', opacity: 0 }}>.</div>
             <Space>
+              <Button
+                type="primary"
+                icon={<FileExcelOutlined />}
+                onClick={handleExportExcel}
+                loading={loading}
+                disabled={!selectedCourseSchedule}
+                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                size="large"
+              >
+                Xuất Excel
+              </Button>
               <Button
                 icon={<ReloadOutlined />}
                 onClick={handleResetFilters}
@@ -667,16 +678,7 @@ const SessionManagement = () => {
               onChange={(e) => setSearchText(e.target.value)}
             />
             
-            {/* Nút xuất Excel */}
-            <Button
-              type="primary"
-              icon={<FileExcelOutlined />}
-              onClick={handleExportExcel}
-              loading={loading}
-              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-            >
-              Xuất Excel
-            </Button>
+            {/* Nút xuất Excel removed from here */}
             
             <Space>
               <Tag
