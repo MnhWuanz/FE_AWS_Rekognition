@@ -7,6 +7,7 @@ import sessionApi from '../../api/apiUser/SessionAPI';
 import studentApi from '../../api/apiUser/StudentAPI';
 import attendanceApi from '../../api/apiUser/AttendanceAPI';
 import enrolmentApi from '../../api/apiUser/EnrolmentAPI';
+import { getUser } from '../../utils/auth';
 
 const SessionManagement = () => {
   const [courses, setCourses] = useState([]);
@@ -42,7 +43,13 @@ const SessionManagement = () => {
     setLoading(true);
     try {
       const res = await courseAPI.getAll();
-      const data = res.data.data || res.data;
+      let data = res.data.data || res.data;
+      
+      const currentUser = getUser();
+      if(currentUser && currentUser.role === 'lecturer'){
+        data = data.filter(c => c.userId === currentUser.id);
+      }
+      
       setCourses(data);
 
       // Parse code để lấy thông tin lịch học

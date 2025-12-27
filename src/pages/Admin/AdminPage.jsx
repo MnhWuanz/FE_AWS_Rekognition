@@ -43,6 +43,24 @@ const AdminPage = () => {
   } = theme.useToken();
   const navigate = useNavigate();
   const location = useLocation();
+  /* loc menu */
+  const user = JSON.parse(localStorage.getItem('user'));
+  const filteredItems = useMemo(() => {
+    if (user?.role === 'admin') {
+      return items;
+    } else {
+      // Filter for lecturer/others
+      // Hide 'UserManagement' (addUser) and 'FaceManagement' (ListStudentsFaces, addFace)
+      const allowedKeys = [
+        'User',
+        'FaceRollCall',
+        'SessionManagement',
+        'Logout',
+      ];
+      return items.filter((item) => allowedKeys.includes(item.key));
+    }
+  }, [user]);
+
   const selectKey = useMemo(() => {
     const p = location.pathname.replace('/admin/', '');
     console.log(p);
@@ -72,7 +90,7 @@ const AdminPage = () => {
         <Menu
           theme="dark"
           mode="inline"
-          items={items}
+          items={filteredItems}
           selectedKeys={selectKey ? [selectKey] : []}
           onClick={(e) => {
             if (e.key === 'Logout') {

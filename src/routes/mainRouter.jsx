@@ -17,8 +17,9 @@ const MainRouter = () => {
     <>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route element={<CheckAuth allowedRoles={['admin']} />}>
+        <Route element={<CheckAuth allowedRoles={['admin', 'lecturer']} />}>
           <Route path="/admin" element={<AdminPage />}>
+            <Route index element={<UserPage />} />
             <Route path="addFace" element={<QRPage />} />
             <Route path="User" element={<UserPage />} />
             <Route path="ListStudentsFaces" element={<ManagerFace />} />

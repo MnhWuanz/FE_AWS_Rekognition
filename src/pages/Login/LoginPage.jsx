@@ -29,7 +29,12 @@ function LoginPage() {
         'Chào mừng đến với hệ thống!'
       );
       setTimeout(() => {
-        u.role === 'admin' ? navigate('/admin') : navigate('/home');
+        if (u.role === 'admin' || u.role === 'lecturer') {
+          navigate('/admin');
+        } else {
+          // Fallback or handle other roles if necessary
+          navigate('/home'); 
+        }
       }, 1500);
     } else {
       openNotificationWithIcon(

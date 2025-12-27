@@ -35,6 +35,7 @@ import studentApi from '../../api/apiUser/StudentAPI';
 import enrolmentApi from '../../api/apiUser/EnrolmentAPI';
 import sessionApi from '../../api/apiUser/SessionAPI';
 import dayjs from 'dayjs';
+import { getUser } from '../../utils/auth';
 
 const CourseManagement = () => {
   const [form] = Form.useForm();
@@ -264,7 +265,13 @@ const CourseManagement = () => {
     setLoading(true);
     try {
       const res = await courseAPI.getAll();
-      const data = res.data.data || res.data;
+      let data = res.data.data || res.data;
+      
+      const currentUser = getUser();
+      if (currentUser && currentUser.role === 'lecturer') {
+         data = data.filter(c => c.userId === currentUser.id);
+      }
+      
       const formattedData = data.map((item) => {
         let parsedCode = item.code;
         let day = '';

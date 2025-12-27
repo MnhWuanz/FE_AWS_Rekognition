@@ -7,6 +7,7 @@ import courseAPI from '../../api/apiUser/CourseAPI';
 import sessionApi from '../../api/apiUser/SessionAPI';
 import attendanceApi from '../../api/apiUser/AttendanceAPI';
 import studentApi from '../../api/apiUser/StudentAPI';
+import { getUser } from '../../utils/auth';
 
 const FaceRollCall = () => {
   const [api, contextHolder] = notification.useNotification();
@@ -318,7 +319,13 @@ const getClassPeriodStartTime = (period) => {
   const fetchCourses = async () => {
     try {
       const res = await courseAPI.getAll();
-      const data = res.data.data || res.data;
+      let data = res.data.data || res.data;
+
+      const currentUser = getUser();
+      if (currentUser && currentUser.role === 'lecturer') {
+        data = data.filter((c) => c.userId === currentUser.id);
+      }
+      
       setCourses(data);
 
       // Parse code để lấy thông tin lịch học
